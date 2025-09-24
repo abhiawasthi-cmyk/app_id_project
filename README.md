@@ -2,7 +2,7 @@
 
 A secure, simple blog application built with Node.js and Express, featuring user authentication powered by IBM Cloud App ID.
 
-![Fork and Footprint Screenshot](https://i.ibb.co/hK7JqfS/WEE.jpg)
+![Fork and Footprint Screenshot] <img src="https://i.ibb.co/3ZbBWgt/snap-1.jpg" alt="snap-1" border="0">
 *Screenshot of the running application.*
 
 ---
