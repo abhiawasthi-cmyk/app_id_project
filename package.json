@@ -10,7 +10,10 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "express": "^5.1.0",
-    "ibmcloud-appid": "^7.0.1"
-  }
+  "express": "latest",
+  "express-session": "latest",
+  "ibmcloud-appid": "latest",
+  "passport": "latest"
+}
+
 }

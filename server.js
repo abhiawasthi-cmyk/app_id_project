@@ -2,7 +2,7 @@
 const express = require('express');
 const session = require('express-session');
 const passport = require('passport');
-const WebAppStrategy = require('ibm-appid').WebAppStrategy;
+const WebAppStrategy = require('ibmcloud-appid').WebAppStrategy;
 
 // Initialize the Express app
 const app = express();
