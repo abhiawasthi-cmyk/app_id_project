@@ -35,13 +35,30 @@ passport.use(new WebAppStrategy({
 passport.serializeUser((user, cb) => cb(null, user));
 passport.deserializeUser((user, cb) => cb(null, user));
 
+// Middleware function to protect routes
+function ensureAuthenticated(req, res, next) {
+    if (req.isAuthenticated()) {
+        return next(); // User is logged in, proceed
+    }
+    res.redirect('/login'); // User is not logged in, send to login page
+}
+
+
 // --- ROUTES ---
 
-app.get('/appid/callback', passport.authenticate(WebAppStrategy.STRATEGY_NAME, { failureRedirect: '/error' }));
+// --- ROUTE UPDATED HERE ---
+app.get('/appid/callback', passport.authenticate(WebAppStrategy.STRATEGY_NAME, {
+    successRedirect: '/', // Explicitly redirect to homepage on success
+    failureRedirect: '/error'
+}));
+
 app.get('/login', passport.authenticate(WebAppStrategy.STRATEGY_NAME));
-app.get('/logout', (req, res) => {
-    WebAppStrategy.logout(req);
+
+app.get('/logout', (req, res, next) => {
+  req.logout(function(err) {
+    if (err) { return next(err); }
     res.redirect('/');
+  });
 });
 
 // 1. Public Homepage - Lists all blog posts
@@ -50,7 +67,6 @@ app.get('/', (req, res) => {
         <style>
             body {
                 font-family: Arial, sans-serif;
-                /* --- BACKGROUND URL UPDATED --- */
                 background-image: url('https://i.ibb.co/nM0jRpcv/cropped-Gemini-Generated-Image-w8b6enw8b6enw8b6.png');
                 background-size: cover;
                 background-attachment: fixed;
@@ -93,7 +109,7 @@ app.get('/', (req, res) => {
     res.send(`<!DOCTYPE html><html><head><title>Fork and Footprint</title>${styles}</head><body>${bodyContent}</body></html>`);
 });
 
-// Other routes remain the same...
+// 2. Public Single Post Page
 app.get('/posts/:id', (req, res) => {
     const post = posts.find(p => p.id == req.params.id);
     if (post) {
@@ -103,7 +119,8 @@ app.get('/posts/:id', (req, res) => {
     }
 });
 
-app.get('/create-post', passport.authenticate(WebAppStrategy.STRATEGY_NAME), (req, res) => {
+// 3. Protected Route - Show form (uses our new middleware)
+app.get('/create-post', ensureAuthenticated, (req, res) => {
     res.send(`
         <h1>Create a New Post</h1>
         <form action="/create-post" method="POST">
@@ -115,7 +132,8 @@ app.get('/create-post', passport.authenticate(WebAppStrategy.STRATEGY_NAME), (re
     `);
 });
 
-app.post('/create-post', passport.authenticate(WebAppStrategy.STRATEGY_NAME), (req, res) => {
+// 4. Protected Route - Handle form submission (uses our new middleware)
+app.post('/create-post', ensureAuthenticated, (req, res) => {
     const newPost = {
         id: postIdCounter++,
         title: req.body.title,
@@ -125,6 +143,7 @@ app.post('/create-post', passport.authenticate(WebAppStrategy.STRATEGY_NAME), (r
     posts.push(newPost);
     res.redirect('/');
 });
+
 
 app.get('/error', (req, res) => {
     res.send('Login Failed. Please try again.');
